@@ -1,0 +1,10 @@
+#Matlab
+*.asv
+*.m~
+*.mex*
+slprj/
+octave-workspace
+.autosave
+
+#VBA
+~$*
