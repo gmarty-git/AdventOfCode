@@ -1,0 +1,49 @@
+function  Day4()
+    %Part 1
+    %===================
+    %Read textfile
+    cArr_inputRawData = regexp(fileread('Day4_input.txt'), '\r?\n\r?\n', 'split');
+	
+	%Build regExp for mandatory fields check
+    str_MandatoryFields = {'byr', 'iyr', 'eyr', 'hgt', 'hcl', 'ecl', 'pid'};
+    str_MdtFieldsRegExpPaterns = cellfun(@(x)sprintf('(^|\r?\n| )%s:', x), str_MandatoryFields, 'UniformOutput', false);
+    
+	%Function to check passports from batch based on mandatory fields regExps
+    function res = checkPassports(str_passportsBatch, str_RegExp_Checks)
+        bool_CheckPassports = false(size(str_passportsBatch));
+        for i_BatchId = 1:size(str_passportsBatch, 2)
+            bool_IsPassport = true;
+            for i_mdtF = 1:size(str_RegExp_Checks, 2)
+               if isempty(regexp(str_passportsBatch{i_BatchId}, str_RegExp_Checks{i_mdtF}, 'once'))
+                   bool_IsPassport = false;
+                   break
+               end
+            end
+            bool_CheckPassports(i_BatchId) = bool_IsPassport;
+        end
+        
+        res = sum(bool_CheckPassports);
+    end
+	
+	
+    int_out_part1 = checkPassports(cArr_inputRawData, str_MdtFieldsRegExpPaterns);
+    
+    %Part 2
+    %===================
+	%Update RegExps with part 2 conditions
+    str_MdtFieldsRegExpPaterns = {'byr:((19[2-9]\d)|(200[0-2]))', ...
+        'iyr:20((1\d)|(20))', ...
+        'eyr:20((2\d)|(30))', ...
+        'hgt:((1(([5-8]\d)|(9[0-3]))cm)|(((59)|(6\d)|(7[0-6]))in))', ...
+        'hcl:#[0-9a-f]{6}', ...
+        'ecl:((amb)|(blu)|(brn)|(gry)|(grn)|(hzl)|(oth))', ...
+        'pid:\d{9}'};
+    str_MdtFieldsRegExpPaterns = cellfun(@(x)sprintf('(^|\r?\n| )%s($|\r?\n| )', x), str_MdtFieldsRegExpPaterns, 'UniformOutput', false);
+	
+	
+    int_out_part2 = checkPassports(cArr_inputRawData, str_MdtFieldsRegExpPaterns);
+    
+    %Print results
+    %===================
+    sprintf('Part_1 answer : %u\n Part_2 answer : %u\n', int_out_part1, int_out_part2)
+end
