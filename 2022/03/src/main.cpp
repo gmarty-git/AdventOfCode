@@ -17,7 +17,7 @@ int main (int argc, char **argv) {
     int int_sumP = 0;
     string::iterator it_dupplicatedPrio;
     for (auto it = strVect_split.begin() ; it != strVect_split.end(); ++it) {
-        it_dupplicatedPrio = find_first_of( (*it).begin(), (*it).begin() + ((*it).size())/2 - 1, (*it).begin() + ((*it).size())/2, (*it).end());
+        it_dupplicatedPrio = find_first_of( (*it).begin(), (*it).begin() + ((*it).size())/2, (*it).begin() + ((*it).size())/2, (*it).end());
         int_sumP += getPriority(*it_dupplicatedPrio);
     }
 

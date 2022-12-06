@@ -42,10 +42,10 @@ int main (int argc, char **argv) {
 
 istream &operator >> (istream &is, ElvesPair &elvesPair)
 {
-	is >> elvesPair.elf1_b;
-	is.ignore(1,'-');
+    is >> elvesPair.elf1_b;
+    is.ignore(1,'-');
     is >> elvesPair.elf1_e;
-	is.ignore(1,',');
+    is.ignore(1,',');
     is >> elvesPair.elf2_b;
     is.ignore(1,'-');
     is >> elvesPair.elf2_e;
