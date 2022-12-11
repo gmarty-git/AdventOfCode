@@ -1,0 +1,54 @@
+ -----  MONKEY GANG   ----- 
+
+Monkey #0
+    Items : 74 64 74 63 53
+    Operarion : new = old * 7
+    Test divisor = 5
+    Targets : ifTrue-> 1 -- ifFalse-> 6
+
+Monkey #1
+    Items : 69 99 95 62
+    Operarion : new = old * old
+    Test divisor = 17
+    Targets : ifTrue-> 2 -- ifFalse-> 5
+
+Monkey #2
+    Items : 59 81
+    Operarion : new = old + 8
+    Test divisor = 7
+    Targets : ifTrue-> 4 -- ifFalse-> 3
+
+Monkey #3
+    Items : 50 67 63 57 63 83 97
+    Operarion : new = old + 4
+    Test divisor = 13
+    Targets : ifTrue-> 0 -- ifFalse-> 7
+
+Monkey #4
+    Items : 61 94 85 52 81 90 94 70
+    Operarion : new = old + 3
+    Test divisor = 19
+    Targets : ifTrue-> 7 -- ifFalse-> 3
+
+Monkey #5
+    Items : 69
+    Operarion : new = old + 5
+    Test divisor = 3
+    Targets : ifTrue-> 4 -- ifFalse-> 2
+
+Monkey #6
+    Items : 54 55 58
+    Operarion : new = old + 7
+    Test divisor = 11
+    Targets : ifTrue-> 1 -- ifFalse-> 5
+
+Monkey #7
+    Items : 79 51 83 88 93 76
+    Operarion : new = old * 3
+    Test divisor = 2
+    Targets : ifTrue-> 0 -- ifFalse-> 6
+
+ -----  MONKEY GANG   ----- 
+
+Day 11 - Part1  anwswer : 54054
+Day 11 - Part2  anwswer : 14314925001
