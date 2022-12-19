@@ -14,3 +14,4 @@ clean:
 
 mrproper: clean
 	rm -rf adventOfCode_2022_14.bin
+    rm -rf day14_anim.bin

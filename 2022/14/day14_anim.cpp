@@ -75,16 +75,16 @@ class Slice {
                 
                 do {
                     moved = false;
-                    if ((*this)(x, y+1) == '.'){
+                    if (((*this)(x, y+1) == '.') || ((*this)(x, y+1) == '~')){
                         y++;
                         moved = true;
                     }
-                    else if ((*this)(x-1, y+1) == '.'){
+                    else if (((*this)(x-1, y+1) == '.') || ((*this)(x-1, y+1) == '~')){
                         y++;
                         x--;
                         moved = true;
                     }
-                    else if ((*this)(x+1, y+1) == '.'){
+                    else if (((*this)(x+1, y+1) == '.') || ((*this)(x+1, y+1) == '~')){
                         y++;
                         x++;
                         moved = true;
@@ -95,6 +95,7 @@ class Slice {
                     }
 
                     if (moved)
+                        (*this)(x, y) = '~';
                         obstructesSource = false;
                 } while (moved);
             
@@ -207,7 +208,7 @@ public:
                 if (caveSlice(i_x, i_y) == '#') {
                     SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255);
                 }
-                else if (caveSlice(i_x, i_y) == 'o') {
+                else if ((caveSlice(i_x, i_y) == 'o') || (caveSlice(i_x, i_y) == '~')) {
                     SDL_SetRenderDrawColor(m_renderer, 140, 100, 65, 255);
                 }
                 else {
