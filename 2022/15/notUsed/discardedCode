@@ -1,0 +1,104 @@
+//DISCARDED CODE
+//
+//grid approach not possible with AoC inputs ^^
+//Grid_2D buildBeaconsExclusionMap(vector<Sensor> sensorsList){
+//    Grid_2D beaconsExclusionMap();
+//            
+//    for (auto it = sensorsList.begin() ; it != sensorsList.end() ; ++it) {
+//        unsigned int b_dist = abs(it->nearestBeaconCoord.x - it->sensorCoord.x) + abs(it->nearestBeaconCoord.y - it->sensorCoord.y);
+//                
+//        beaconsExclusionMap(it->sensorCoord.x, it->sensorCoord.y) = '#';
+//        for(int i = 1; i <= b_dist; ++i){
+//            beaconsExclusionMap(it->sensorCoord.x, it->sensorCoord.y + i) = '#';
+//            beaconsExclusionMap(it->sensorCoord.x, it->sensorCoord.y - i) = '#';
+//            beaconsExclusionMap(it->sensorCoord.x + i, it->sensorCoord.y) = '#';
+//            beaconsExclusionMap(it->sensorCoord.x - i, it->sensorCoord.y) = '#';
+//
+//            for(int j = 1; j <= i - 1; ++j){
+//                beaconsExclusionMap(it->sensorCoord.x + j, it->sensorCoord.y + i - j) = '#';
+//                beaconsExclusionMap(it->sensorCoord.x - j, it->sensorCoord.y + i - j) = '#';
+//                beaconsExclusionMap(it->sensorCoord.x + j, it->sensorCoord.y - i + j) = '#';
+//                beaconsExclusionMap(it->sensorCoord.x - j, it->sensorCoord.y - i + j) = '#';   
+//            }
+//        }
+//    }
+//    
+//    for (auto it = sensorsList.begin() ; it != sensorsList.end() ; ++it)
+//         beaconsExclusionMap(it->nearestBeaconCoord.x, it->nearestBeaconCoord.y) = 'B';
+//    
+//    return beaconsExclusionMap;
+//}
+//int main (int argc, char **argv) {
+//  vector<Sensor> sensorsList = readSensorsReportFromFile("input_15.txt");
+//  grid approach not possible with AoC inputs ^^
+//  Grid_2D beaconsExclusionMap = buildBeaconsExclusionMap(sensorsList);
+//  vector<char> row2000 = beaconsExclusionMap.getRow(2000);
+//  cout << "Day 15 - Part1  anwswer : " <<  count_if(row2000.begin(), row2000.end(), [](char c) { return c == '#'; }) << endl;
+
+//Easy to write but slow
+//int getNotPossibleBeaconLocationCount(vector<Sensor> sensorsList, int y) {
+//    set<int> noBeacon_x_set, Beacon_x_set, inSensorRange_x_set;
+//    int verticalDist;
+//    
+//    for (auto it = sensorsList.begin(); it != sensorsList.end() ; ++it){
+//        verticalDist = abs(it->sensorCoord.y - y);
+//        if ( verticalDist <= it->nearestBeaconDist ){
+//            for (int x = it->sensorCoord.x - it->nearestBeaconDist + verticalDist ; x <= (it->sensorCoord.x + it->nearestBeaconDist - verticalDist) ; ++x)
+//                inSensorRange_x_set.insert(x);
+//        }
+//        
+//        if (it->nearestBeaconCoord.y == y)
+//            Beacon_x_set.insert(it->nearestBeaconCoord.x);
+//    }
+//    
+//    set_difference(inSensorRange_x_set.begin(), inSensorRange_x_set.end(), Beacon_x_set.begin(), Beacon_x_set.end(), inserter(noBeacon_x_set, noBeacon_x_set.begin()));
+//
+//    return noBeacon_x_set.size();
+//}
+//Naive approach : fast enought for part1 too slow for part2
+//int getNotPossibleBeaconLocationCount(vector<Sensor> sensorsList, int y) {
+//    int noBeaconLocCount = 0;
+//    int min_colId, max_colId;
+//
+//    min_colId = sensorsList[0].sensorCoord.x - sensorsList[0].nearestBeaconDist;
+//    max_colId = sensorsList[0].sensorCoord.x + sensorsList[0].nearestBeaconDist; 
+//    for (auto it = sensorsList.begin()+1 ; it != sensorsList.end() ; ++it) {        
+//        if ( (it->sensorCoord.x - it->nearestBeaconDist) < min_colId)
+//            min_colId = it->sensorCoord.x - it->nearestBeaconDist;
+//            
+//        else if ( (it->sensorCoord.x + it->nearestBeaconDist) > max_colId)
+//            max_colId = it->sensorCoord.x + it->nearestBeaconDist;
+//    }
+//        
+//    bool possibleBeaconLoc;
+//    int distToSensor;
+//    for (int x = min_colId ; x <= max_colId ; ++x){
+//        possibleBeaconLoc = false;
+//        
+//        //Check if current location contains a beacon
+//        for (auto it = sensorsList.begin() ; it != sensorsList.end() ; ++it){
+//            if ( (x == it->nearestBeaconCoord.x) && (y == it->nearestBeaconCoord.y) ){
+//                possibleBeaconLoc = true;
+//                break;
+//            }
+//        }
+//        
+//        if (possibleBeaconLoc)
+//            continue;
+//
+//        //Current location is not a beacon, check if it's in range of sensor
+//        possibleBeaconLoc = true;
+//        for (auto it = sensorsList.begin() ; it != sensorsList.end() ; ++it){
+//            distToSensor = abs(x - it->sensorCoord.x) + abs(y - it->sensorCoord.y);
+//            if ( distToSensor <= it->nearestBeaconDist ){
+//                possibleBeaconLoc = false;
+//                break;        
+//            }
+//        }
+//        
+//        if (!possibleBeaconLoc)
+//            noBeaconLocCount++;
+//    }
+//    
+//    return noBeaconLocCount;
+//}

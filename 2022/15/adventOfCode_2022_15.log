@@ -1,0 +1,4 @@
+g++ -o adventOfCode_2022_15.bin main.cpp -O3
+
+Day 15 - Part1  anwswer : 6078697
+Day 15 - Part2  anwswer : 12567351400528
