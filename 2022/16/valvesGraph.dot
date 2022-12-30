@@ -1,0 +1,47 @@
+graph G {
+node [shape=square][style=rounded]
+0[label="XD\nflow=10"][style=filled][fillcolor="yellow"];
+1[label="FQ\nflow=15"][style=filled][fillcolor="yellow"];
+2[label="HH\nflow=20"][style=filled][fillcolor="yellow"];
+3[label="DW\nflow=19"][style=filled][fillcolor="yellow"];
+4[label="RP\nflow=14"][style=filled][fillcolor="yellow"];
+5[label="AA"][style=filled][fillcolor="aqua"];
+6[label="VM\nflow=18"][style=filled][fillcolor="yellow"];
+7[label="CS\nflow=3"][style=filled][fillcolor="yellow"];
+8[label="XC\nflow=17"][style=filled][fillcolor="yellow"];
+9[label="TE\nflow=24"][style=filled][fillcolor="yellow"];
+10[label="SU\nflow=22"][style=filled][fillcolor="yellow"];
+11[label="FL\nflow=8"][style=filled][fillcolor="yellow"];
+12[label="OL\nflow=4"][style=filled][fillcolor="yellow"];
+13[label="YP\nflow=21"][style=filled][fillcolor="yellow"];
+14[label="UK\nflow=7"][style=filled][fillcolor="yellow"];
+15[label="WV\nflow=11"][style=filled][fillcolor="yellow"];
+0--10 [label="2"][len=2];
+0--9 [label="2"][len=2];
+4--11 [label="3"][len=3];
+4--5 [label="3"][len=3];
+5--8 [label="2"][len=2];
+6--15 [label="2"][len=2];
+2--8 [label="3"][len=3];
+4--7 [label="2"][len=2];
+7--11 [label="3"][len=3];
+5--11 [label="2"][len=2];
+2--10 [label="3"][len=3];
+2--11 [label="2"][len=2];
+2--7 [label="2"][len=2];
+2--14 [label="2"][len=2];
+0--13 [label="2"][len=2];
+0--1 [label="3"][len=3];
+12--14 [label="3"][len=3];
+9--13 [label="2"][len=2];
+3--11 [label="2"][len=2];
+7--8 [label="3"][len=3];
+8--12 [label="3"][len=3];
+8--14 [label="3"][len=3];
+1--13 [label="2"][len=2];
+4--10 [label="2"][len=2];
+5--7 [label="3"][len=3];
+0--4 [label="3"][len=3];
+2--5 [label="3"][len=3];
+12--15 [label="3"][len=3];
+}
