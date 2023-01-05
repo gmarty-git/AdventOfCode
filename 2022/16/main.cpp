@@ -122,9 +122,13 @@ array_type getShortestDistanceMatrix(Graph& g){
 }
 
 
-unsigned long long playVerticesSequence(Graph& g, array_type& shortestDistancesMap,std::vector<unsigned int> verticesIdxSeq, unsigned int timeout){
-    unsigned long long  releasedPressure = 0ULL;
-    unsigned int totalFlow = 0, sourceVertexIdx, targetVertexIdx, moveDuration;
+unsigned int playVerticesSequence(Graph& g, array_type& shortestDistancesMap,std::vector<unsigned int> verticesIdxSeq, unsigned int timeout){
+    if (verticesIdxSeq.size() < 2)
+        return 0;
+
+    unsigned int releasedPressure = 0, totalFlow = 0, sourceVertexIdx, targetVertexIdx, moveDuration;
+    int time = timeout;
+
     for (auto v = verticesIdxSeq.begin() + 1 ; v != verticesIdxSeq.end() ; ++v){
                 
         //Move to next valve - some pressure is released during move
@@ -132,22 +136,22 @@ unsigned long long playVerticesSequence(Graph& g, array_type& shortestDistancesM
         targetVertexIdx =  *v;
         moveDuration = shortestDistancesMap[sourceVertexIdx][targetVertexIdx];
         releasedPressure += (unsigned long long) totalFlow*moveDuration;
-        timeout -= moveDuration;
+        time -= moveDuration;
         
         //If it remains time open valve - some pressure is released during valve opening
-        if (timeout > 0){
-            timeout--;
+        if (time > 0){
+            time--;
             releasedPressure += (unsigned long long)totalFlow;
             totalFlow +=  g[*v].flow;
         }
         else { //If time exceed timeout, corrects relased pressure
-            releasedPressure -= (unsigned long long) (-timeout)*totalFlow;
+            releasedPressure -= (unsigned long long) (-time)*totalFlow;
             break;
         }
     }
     
-    if (timeout > 0)
-        releasedPressure += (unsigned long long) timeout*totalFlow;
+    if (time > 0)
+        releasedPressure += (unsigned long long) time*totalFlow;
         
     return releasedPressure;
 }
@@ -184,6 +188,116 @@ unsigned long long playVerticesSequence(Graph& g, array_type& shortestDistancesM
 void getPermutations(   Graph& g, 
                         array_type& shortestDistancesMap, 
                         unsigned int timeout, 
+                        std::vector< std::pair< std::vector<unsigned int>, std::vector<unsigned int> > >& allPermutations,
+                        bool withBrolephant = false,
+                        std::pair< std::vector<unsigned int>, std::vector<unsigned int> > currentPermutation = {},
+                        std::vector<bool> usedIdx = {},
+                        std::pair<unsigned int, unsigned int> usedTime = {0, 0},
+                        std::pair<int, int> nextVertexIdx = {-1, -1}){
+
+    unsigned int verticesCount = getGraphVerticesCount(g);
+
+    //Initialise permutation to 'AA'
+    if (currentPermutation.first.empty()){
+        unsigned int AA_idx;
+        Graph::vertex_iterator v, vend;
+        for ( std::tie(v, vend) = boost::vertices(g); v != vend; ++v) {
+            if (g[*v].name == "AA"){
+                AA_idx = g[*v].id;
+                break;
+            }
+        }
+
+        currentPermutation.first.reserve(verticesCount);
+        currentPermutation.first.push_back(AA_idx);
+        usedIdx.resize(verticesCount, false);
+        usedIdx[AA_idx] = true;
+
+        if (withBrolephant){
+            currentPermutation.second.reserve(verticesCount);
+            currentPermutation.second.push_back(AA_idx);
+        }
+        else
+            usedTime.second = timeout + 1;
+
+    }
+
+    //Add specified vertex to permutation and update usedTime
+    //-1 in case of root call or if valve has been allocated to other charater
+    if (nextVertexIdx.first != -1){
+        usedIdx[nextVertexIdx.first] = true;
+        currentPermutation.first.push_back(nextVertexIdx.first);
+        usedTime.first += shortestDistancesMap[currentPermutation.first[currentPermutation.first.size()-2]][nextVertexIdx.first] + 1 ; //+1 time to open valve
+    }
+    if (nextVertexIdx.second != -1){
+        usedIdx[nextVertexIdx.second] = true;
+        currentPermutation.second.push_back(nextVertexIdx.second);
+        usedTime.second += shortestDistancesMap[currentPermutation.second[currentPermutation.second.size()-2]][nextVertexIdx.second] + 1 ; //+1 time to open valve
+    }
+
+
+
+    //If timeout is reached or all valves have been open then save current permutation and break recursion
+    if ( ((usedTime.first >= timeout) && (usedTime.second >= timeout)) || (std::all_of(usedIdx.begin(), usedIdx.end(), [](bool v) { return v; })) ) {
+        allPermutations.push_back(currentPermutation);
+        return;
+    }
+    else{
+        unsigned int nextVertexIdx_element = 0;
+        for (auto usedV = usedIdx.begin() ; usedV != usedIdx.end() ; ++usedV){
+            if (!*usedV){
+                if (usedTime.first < timeout)
+                    getPermutations(g, shortestDistancesMap, timeout, allPermutations, withBrolephant, currentPermutation, usedIdx, usedTime, {nextVertexIdx_element, -1});
+                if (usedTime.second < timeout)
+                    getPermutations(g, shortestDistancesMap, timeout, allPermutations, withBrolephant, currentPermutation, usedIdx, usedTime, {-1, nextVertexIdx_element});
+            }
+            
+            nextVertexIdx_element++;
+        }   
+    }    
+}
+
+unsigned int getMaxReleasedPressure(Graph& g, array_type& shortestDistancesMap, 
+                                    unsigned int timeout, 
+                                    std::pair< std::vector<unsigned int>, std::vector<unsigned int> >& maxPreleased_perm,
+                                    bool withBrolephant = false){
+
+    std::vector< std::pair< std::vector<unsigned int>, std::vector<unsigned int> > > allPermutations;
+
+    //Use Part1 result to reduce Part2 problem size
+    if ( (!maxPreleased_perm.first.empty()) && (maxPreleased_perm.second.empty()) ){
+        maxPreleased_perm.first.resize(5);
+        unsigned int verticesCount = getGraphVerticesCount(g);
+        std::vector<bool> usedIdx (verticesCount, false);
+        std::pair<unsigned int, unsigned int> usedTime (0, 0);
+        usedIdx[maxPreleased_perm.first[0]] = true;
+        for (auto i = 1 ; i < maxPreleased_perm.first.size() ; ++i){
+            usedIdx[maxPreleased_perm.first[i]] = true;
+            usedTime.first += shortestDistancesMap[maxPreleased_perm.first[i-1]][maxPreleased_perm.first[i]] + 1;
+        }
+        maxPreleased_perm.second.push_back(maxPreleased_perm.first[0]);
+
+        getPermutations(g, shortestDistancesMap, timeout, allPermutations, withBrolephant, maxPreleased_perm, usedIdx, usedTime);
+    }
+    else
+        getPermutations(g, shortestDistancesMap, timeout, allPermutations, withBrolephant);
+
+    //Naive approach (don't kow if there are better solutions): simulate all paths which take less than timeout
+    unsigned int max_releasedP = 0, releasedP = 0;
+    for (auto perm = allPermutations.begin() ; perm != allPermutations.end() ; ++perm){
+        releasedP = playVerticesSequence(g, shortestDistancesMap, (*perm).first, timeout) + playVerticesSequence(g, shortestDistancesMap, (*perm).second, timeout);
+        if (releasedP > max_releasedP){
+            max_releasedP = releasedP;
+            maxPreleased_perm = *perm;
+        }
+    }
+
+    return max_releasedP;
+}
+
+/*void getPermutations(   Graph& g, 
+                        array_type& shortestDistancesMap, 
+                        unsigned int timeout, 
                         std::vector<std::vector<unsigned int> >& allPermutations, 
                         std::vector<unsigned int> currentPermutation = {},
                         std::vector<bool> usedIdx = {},
@@ -209,7 +323,7 @@ void getPermutations(   Graph& g,
         usedIdx[AA_idx] = true;
     }
 
-    //If not root call, then add specify vertex to permutation and update usedTime
+    //If not root call, then add specified vertex to permutation and update usedTime
     if (nextVertexIdx != -1){
         usedIdx[nextVertexIdx] = true;
         currentPermutation.push_back(nextVertexIdx);
@@ -232,40 +346,53 @@ void getPermutations(   Graph& g,
     }    
 }
 
-unsigned long long getMaxReleasedPressure(Graph& g, array_type& shortestDistancesMap, unsigned int timeout){
+unsigned int getMaxReleasedPressure(Graph& g, array_type& shortestDistancesMap, unsigned int timeout){
     std::vector<std::vector<unsigned int> > allPermutations;
+    std::vector<unsigned int> maxPreleasedSequence;
     getPermutations(g, shortestDistancesMap, timeout, allPermutations);
 
-    //Naive approach : simulate all paths, even obviously ineficient ones
-    unsigned long long max_releasedP = 0ULL, releasedP = 0ULL;
+    //Naive approach (don't kow if there are better solutions): simulate all paths which take less than timeout
+    unsigned int max_releasedP = 0, releasedP = 0;
     for (auto perm = allPermutations.begin() ; perm != allPermutations.end() ; ++perm){
         releasedP = playVerticesSequence(g, shortestDistancesMap, *perm, timeout);
-        if (releasedP > max_releasedP)
+        if (releasedP > max_releasedP){
             max_releasedP = releasedP;
+            maxPreleasedSequence = *perm;
+        }
     }
-    
-    return max_releasedP;
-}
 
-template <class Name, class Flow>
+    return max_releasedP;
+}*/
+
+template <class Name, class Flow, class Id>
 class vertex_writer {
     public:
-        vertex_writer(Name _name, Flow _flow) : name(_name), flow(_flow) {}
+        vertex_writer(Name _name, Flow _flow, Id _id, bool _hideVId) : name(_name), flow(_flow), id(_id) {hideVerticesId = _hideVId;}
         template <class VertexOrEdge>
         void operator()(std::ostream& out, const VertexOrEdge& v) const {
-        if (flow[v] != 0){
-            out << "[label=\"" << name[v] << "\\nflow=" << flow[v] << "\"]";
-            out << "[style=filled][fillcolor=\"yellow\"]";
+            std::string str_VertexLabel = "[label=\"", str_VertexFillColor = "";
+            if (!hideVerticesId)
+                str_VertexLabel += std::to_string(id[v]) + ".";
+
+            str_VertexLabel += name[v];
+
+            if (flow[v] != 0){
+                str_VertexLabel += "\\nflow=" + std::to_string(flow[v]);
+                str_VertexFillColor = "[style=filled][fillcolor=\"yellow\"]";
+
+            }
+            str_VertexLabel += "\"]";
+
+            if ( name[v] == "AA" )
+                str_VertexFillColor = "[style=filled][fillcolor=\"aqua\"]";
+
+            out << str_VertexLabel << str_VertexFillColor;
         }
-        else
-            out << "[label=\"" << name[v] << "\"]";
-          
-    if ( name[v] == "AA" )
-        out << "[style=filled][fillcolor=\"aqua\"]";
-}
-    private:
-        Name name;
-        Flow flow;
+            private:
+                Id id;
+                Name name;
+                Flow flow;
+                bool hideVerticesId;
 };
 
 template <class Weight>
@@ -291,10 +418,12 @@ struct graph_writer {
     }
 };
 
-void writeGraphToDotFile(std::string filename, Graph& g, bool hideEdgeWeight = false){
+void writeGraphToDotFile(std::string filename, Graph& g, bool hideVerticesId = false, bool hideEdgeWeight = false){
     std::ofstream ofs(filename, std::ios::out);
     write_graphviz(ofs, g,  vertex_writer(boost::get(&VertexProperties::name, g), 
-                                            boost::get(&VertexProperties::flow, g)),
+                                            boost::get(&VertexProperties::flow, g),
+                                            boost::get(&VertexProperties::id, g),
+                                            hideVerticesId),
                             edge_writer(boost::get(&EdgeProperties::weight, g), hideEdgeWeight), 
                             graph_writer());
 }
@@ -310,10 +439,11 @@ int main (int argc, char **argv) {
     simplifyGraph(g);
     writeGraphToDotFile("valvesGraph.dot", g);
     array_type shortestDistancesMap = getShortestDistanceMatrix(g);
- 
-    
-    cout << "Day 16 - Part1  anwswer : " << getMaxReleasedPressure(g, shortestDistancesMap, 30)  << endl;
-    cout << "Day 16 - Part2  anwswer : " << "" << endl;
+
+    std::pair< std::vector<unsigned int>, std::vector<unsigned int> > maxPreleased_perm;
+
+    cout << "Day 16 - Part1  anwswer : " << getMaxReleasedPressure(g, shortestDistancesMap, 30, maxPreleased_perm)  << endl;
+    cout << "Day 16 - Part2  anwswer : " << getMaxReleasedPressure(g, shortestDistancesMap, 26, maxPreleased_perm, true) << endl;
 
     exit(0);
 }
